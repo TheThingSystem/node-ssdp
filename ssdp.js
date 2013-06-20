@@ -14,6 +14,7 @@ var SSDP_SIG = 'node.js/0.0.8 UPnP/1.1 node-ssdp/0.0.1'
                   , warning : function(msg, props) { console.log(msg); if (props) console.log(props);  }
                   , notice  : function(msg, props) { console.log(msg); if (props) console.log(props);  }
                   , info    : function(msg, props) { console.log(msg); if (props) console.log(props);  }
+                  , debug   : function(msg, props) { console.log(msg); if (props) console.log(props);  }
                   }
   ;
 
@@ -80,7 +81,7 @@ SSDP.prototype.inMSearch = function (st, rinfo) {
         SERVER: SSDP_SIG,
         EXT: ''
       }, true);
-      self.logger.info('Sending a 200 OK for an m-search to ' + peer + ':' + port);
+      self.logger.debug('Sending a 200 OK for an M-SEARCH to ' + peer + ':' + port);
       pkt = new Buffer(pkt);
       self.sock.send(pkt, 0, pkt.length, port, peer);
     }
@@ -137,7 +138,7 @@ SSDP.prototype.parseCommand = function parseCommand(msg, rinfo) {
       }
       break;
     case 'M-SEARCH':
-      console.log('SSDP M-SEARCH: for (' + heads['ST'] + ') from (' + rinfo['address'] + ':' + rinfo['port'] + ')');
+      self.logger.debug('SSDP M-SEARCH: for (' + heads['ST'] + ') from (' + rinfo['address'] + ':' + rinfo['port'] + ')');
       if (!heads['MAN']) return;
       if (!heads['MX']) return;
       if (!heads['ST']) return;
@@ -153,7 +154,7 @@ SSDP.prototype.parseCommand = function parseCommand(msg, rinfo) {
 SSDP.prototype.parseResponse = function parseResponse(msg, rinfo) {
   if (!this.responses[rinfo.address]) {
     this.responses[rinfo.address] = true;
-    this.logger.info('SSDP response', { rinfo: rinfo });
+    this.logger.debug('SSDP response', { rinfo: rinfo });
   }
   this.emit('response', msg, rinfo);
   /*console.log('Parsing a response!');
