@@ -10,11 +10,11 @@ var SSDP_SIG = 'node.js/0.0.8 UPnP/1.1 node-ssdp/0.0.1'
   , SSDP_PORT = 1900
   , SSDP_IPPORT = SSDP_IP + ':' + SSDP_PORT
   , TTL = 1800
-  , SSDP_LOGGER = { error   : function(msg, props) { console.log(msg); console.trace(props.exception); }
-                  , warning : function(msg, props) { console.log(msg); if (props) console.log(props);  }
-                  , notice  : function(msg, props) { console.log(msg); if (props) console.log(props);  }
-                  , info    : function(msg, props) { console.log(msg); if (props) console.log(props);  }
-                  , debug   : function(msg, props) { console.log(msg); if (props) console.log(props);  }
+  , SSDP_LOGGER = { error   : function(msg, props) { console.log(msg); if (!!props) console.trace(props.exception); }
+                  , warning : function(msg, props) { console.log(msg); if (!!props) console.log(props);             }
+                  , notice  : function(msg, props) { console.log(msg); if (!!props) console.log(props);             }
+                  , info    : function(msg, props) { console.log(msg); if (!!props) console.log(props);             }
+                  , debug   : function(msg, props) { console.log(msg); if (!!props) console.log(props);             }
                   }
   ;
 
