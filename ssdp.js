@@ -37,7 +37,7 @@ function SSDP() {
   self.sock = dgram.createSocket('udp4');
 
   self.sock.on('error', function (err) {
-    self.logger.error('ssdp', { event: 'socket', diagnostic: 'error', exception: err });
+    (self.logger.fatal || self.logger.error)('ssdp', { event: 'socket', diagnostic: 'error', exception: err });
   });
 
   self.sock.on('message', function onMessage(msg, rinfo) {
