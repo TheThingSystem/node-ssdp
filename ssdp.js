@@ -163,7 +163,7 @@ SSDP.prototype.parseResponse = function parseResponse(msg, rinfo) {
 
 
 
-SSDP.prototype.search = function search(st) {
+SSDP.prototype.search = function search(st, ipaddr) {
   var self = this;
 
   require('dns').lookup(require('os').hostname(), function (err, add) {/* jshint unused: false */
@@ -177,7 +177,7 @@ SSDP.prototype.search = function search(st) {
     });
     pkt = new Buffer(pkt);
 //    console.log('@138', pkt.toString());
-    self.sock.send(pkt, 0, pkt.length, SSDP_PORT, SSDP_IP);
+    self.sock.send(pkt, 0, pkt.length, SSDP_PORT, (!!ipaddr) ? ipaddr : SSDP_IP);
   });
 };
 
