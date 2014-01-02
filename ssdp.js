@@ -183,12 +183,14 @@ SSDP.prototype.search = function search(st, ipaddr) {
 
 
 
-SSDP.prototype.server = function (ip, portno) {
+SSDP.prototype.server = function (ip, portH, portS) {
   var self = this;
 
-  this.httphost = 'http://'+ip+':'+((!!portno) ? portno : '10293');
+  if (!portH) portH = 10293;
+  if (!portS) portS = 1900;
+  this.httphost = 'http://'+ip+':'+portH;
   this.usns[this.udn] = this.udn;
-  if (!this.listening) this.sock.bind(SSDP_PORT, ip);
+  if (!this.listening) this.sock.bind(portS, ip);
 
   // Shut down.
   this.advertise(false);
