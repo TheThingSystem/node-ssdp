@@ -18,16 +18,20 @@ var SSDP_SIG = 'node.js/0.0.8 UPnP/1.1 node-ssdp/0.0.1'
                   }
   ;
 
-function SSDP() {
+function SSDP(options) {
   var self = this;
 
-  if (!(this instanceof SSDP)) return new SSDP();
+  if (!(this instanceof SSDP)) return new SSDP(options);
 
   EE.call(self);
 
   self.logger = SSDP_LOGGER;
   self.description = 'upnp/desc.php';
 
+  if (!options) options = {};
+  if (typeof options.addMembership === 'undefined') options.addMembership = true;
+  self.options = options;
+ 
   self.usns = {};
   self.udn = 'uuid:e3f28962-f694-471f-8f74-c6abd507594b';
 
@@ -41,6 +45,7 @@ function SSDP() {
   });
 
   self.sock.on('message', function onMessage(msg, rinfo) {
+     if (!!self.options.responsesOnly) return self.parseResponse(msg, rinfo);
     self.parseMessage(msg, rinfo);
   });
 
@@ -48,8 +53,9 @@ function SSDP() {
     var addr = self.sock.address();
     self.listening = 'http://' + addr.address + ':' + addr.port;
     self.logger.info('SSDP listening on ' + self.listening);
-    self.sock.addMembership(SSDP_IP);
-//    self.sock.setMulticastTTL(2);
+    if (self.options.addMembership) self.sock.addMembership(SSDP_IP);
+    if (typeof self.options.multicastLoopback !== 'undefined') self.sock.setMulticastLoopback(options.multicastLoopback);
+    if (typeof self.options.multicastTTL !== 'undefined') self.sock.setMulticastTTL(options.multicastTTL);
   });
 
   process.on('exit', function () {
@@ -183,17 +189,17 @@ SSDP.prototype.search = function search(st, ipaddr) {
 
 
 
-SSDP.prototype.server = function (ip, portH, portS) {
+SSDP.prototype.server = function (ip, portno) {
   var self = this;
 
-  if (!portH) portH = 10293;
-  if (!portS) portS = 1900;
-  this.httphost = 'http://'+ip+':'+portH;
-  this.usns[this.udn] = this.udn;
-  if (!this.listening) this.sock.bind(portS, ip);
+  this.httphost = 'http://'+ip+':'+((!!portno) ? portno : '10293');
+  self.usns[self.udn] = self.udn;
+  if (!self.listening) self.sock.bind(SSDP_PORT, ip);
+
+  if (!!self.options.noAdvertisements) return;  
 
   // Shut down.
-  this.advertise(false);
+  self.advertise(false);
 
   setTimeout(function () {
     self.advertise(false);
