@@ -50,12 +50,27 @@ function SSDP(options) {
   });
 
   self.sock.on('listening', function onListening() {
+    var event;
+
     var addr = self.sock.address();
     self.listening = 'http://' + addr.address + ':' + addr.port;
     self.logger.info('SSDP listening on ' + self.listening);
-    if (self.options.addMembership) self.sock.addMembership(SSDP_IP);
-    if (typeof self.options.multicastLoopback !== 'undefined') self.sock.setMulticastLoopback(options.multicastLoopback);
-    if (typeof self.options.multicastTTL !== 'undefined') self.sock.setMulticastTTL(options.multicastTTL);
+    try {
+      if (self.options.addMembership) {
+        event = 'addMembership';
+        self.sock.addMembership(SSDP_IP);
+      }
+      if (typeof self.options.multicastLoopback !== 'undefined') {
+        event = 'setMulticastLoopback';
+        self.sock.setMulticastLoopback(options.multicastLoopback);
+      }
+      if (typeof self.options.multicastTTL !== 'undefined') {
+        event = 'setMulticastTTL';
+        self.sock.setMulticastTTL(options.multicastTTL);
+      }
+    } catch(ex) {
+      (self.logger.fatal || self.logger.error)('ssdp', { event: event, diagnostic: 'error', exception: ex });
+    }
   });
 
   process.on('exit', function () {
